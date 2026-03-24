@@ -1,10 +1,12 @@
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class BackpackManager : MonoBehaviour
 {
     public static BackpackManager Instance;
     public List<GameObject> inventory = new List<GameObject>();
+    private bool isBackpackItemPicked;
 
     private void Awake()
     {
@@ -14,8 +16,20 @@ public class BackpackManager : MonoBehaviour
 
     public void AddToBackpack(GameObject item)
     {
-        inventory.Add(item);
-        item.SetActive(false); // Hide the item
-        Debug.Log("Added " + item.name + " to backpack. Total items: " + inventory.Count);
+        if (item.name == "Backpack" || isBackpackItemPicked == true)
+        {
+            if (item.name == "Backpack")
+            {
+                isBackpackItemPicked = true;
+            }
+
+            inventory.Add(item);
+            item.SetActive(false); // hide the item
+            Debug.Log("Added " + item.name + " to backpack. Total items: " + inventory.Count);
+        }
+        else
+        {
+            Debug.Log("Pick backpack first to store other items");
+        }
     }
 }
