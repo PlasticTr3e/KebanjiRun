@@ -7,14 +7,24 @@ using TMPro;
 public class BackpackItem : MonoBehaviour
 {
     private XRGrabInteractable grabInteractable;
+<<<<<<< Updated upstream
     private GameObject promptUI;
     private TextMeshProUGUI promptText;
+    private GlowEffect glowEffect; 
+
+    [Header("Glow Settings")]
+    [SerializeField] public string itemName = "Item";
+    [SerializeField] public bool isValidItem = true; // item benar (Hijau), kosongkan jika salah (Merah)
+=======
+>>>>>>> Stashed changes
 
     [SerializeField] private InputActionProperty backpackAction;
 
     private void Awake()
     {
         grabInteractable = GetComponent<XRGrabInteractable>();
+<<<<<<< Updated upstream
+        glowEffect = GetComponent<GlowEffect>();
         SetupPromptUI();
     }
 
@@ -54,17 +64,32 @@ public class BackpackItem : MonoBehaviour
     private void OnGrab(SelectEnterEventArgs args)
     {
         promptUI.SetActive(true);
+        if (glowEffect != null)
+        {
+            if (isValidItem)
+                glowEffect.ShowGlow(GlowEffect.GlowColor.Green); // Panggil warna Hijau
+            else
+                glowEffect.ShowGlow(GlowEffect.GlowColor.Red);   // Panggil warna Merah
+        }
     }
 
     private void OnRelease(SelectExitEventArgs args)
     {
         promptUI.SetActive(false);
+        if (glowEffect != null)
+        {
+            glowEffect.StopGlow(); 
+        }
     }
 
+=======
+    }
+>>>>>>> Stashed changes
     private void Update()
     {
         if (grabInteractable.isSelected)
         {
+<<<<<<< Updated upstream
             // Face the camera
             if (Camera.main != null)
                 promptUI.transform.LookAt(Camera.main.transform);
@@ -72,7 +97,24 @@ public class BackpackItem : MonoBehaviour
             // Check if backpack button is pressed
             if (backpackAction.action != null && backpackAction.action.WasPressedThisFrame())
             {
+                if (isValidItem)
+                {
+                    BackpackManager.Instance.AddToBackpack(this.gameObject);
+                }
+                else
+                {
+                    Debug.Log("Item '" + itemName + "' tidak penting dibawa!");
+                }
+=======
+            // face the camera
+            if (Camera.main != null)
+                promptUI.transform.LookAt(Camera.main.transform);
+
+            // check if backpack button is pressed
+            if (backpackAction.action != null && backpackAction.action.WasPressedThisFrame())
+            {
                 BackpackManager.Instance.AddToBackpack(this.gameObject);
+>>>>>>> Stashed changes
             }
         }
     }
