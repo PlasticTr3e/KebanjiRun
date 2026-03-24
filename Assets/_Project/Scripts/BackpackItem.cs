@@ -7,6 +7,7 @@ using TMPro;
 public class BackpackItem : MonoBehaviour
 {
     private XRGrabInteractable grabInteractable;
+<<<<<<< Updated upstream
     private GameObject promptUI;
     private TextMeshProUGUI promptText;
     private GlowEffect glowEffect; 
@@ -14,12 +15,15 @@ public class BackpackItem : MonoBehaviour
     [Header("Glow Settings")]
     [SerializeField] public string itemName = "Item";
     [SerializeField] public bool isValidItem = true; // item benar (Hijau), kosongkan jika salah (Merah)
+=======
+>>>>>>> Stashed changes
 
     [SerializeField] private InputActionProperty backpackAction;
 
     private void Awake()
     {
         grabInteractable = GetComponent<XRGrabInteractable>();
+<<<<<<< Updated upstream
         glowEffect = GetComponent<GlowEffect>();
         SetupPromptUI();
     }
@@ -78,10 +82,14 @@ public class BackpackItem : MonoBehaviour
         }
     }
 
+=======
+    }
+>>>>>>> Stashed changes
     private void Update()
     {
         if (grabInteractable.isSelected)
         {
+<<<<<<< Updated upstream
             // Face the camera
             if (Camera.main != null)
                 promptUI.transform.LookAt(Camera.main.transform);
@@ -97,6 +105,16 @@ public class BackpackItem : MonoBehaviour
                 {
                     Debug.Log("Item '" + itemName + "' tidak penting dibawa!");
                 }
+=======
+            // face the camera
+            if (Camera.main != null)
+                promptUI.transform.LookAt(Camera.main.transform);
+
+            // check if backpack button is pressed
+            if (backpackAction.action != null && backpackAction.action.WasPressedThisFrame())
+            {
+                BackpackManager.Instance.AddToBackpack(this.gameObject);
+>>>>>>> Stashed changes
             }
         }
     }
