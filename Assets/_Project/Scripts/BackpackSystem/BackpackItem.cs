@@ -1,69 +1,33 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.InputSystem;
-using TMPro;
 
 public class BackpackItem : MonoBehaviour
 {
     private XRGrabInteractable grabInteractable;
-<<<<<<< Updated upstream
-    private GameObject promptUI;
-    private TextMeshProUGUI promptText;
-    private GlowEffect glowEffect; 
+    private GlowEffect glowEffect;
+    private bool wasSelectedLastFrame;
+    private bool wasBackpackPressedLastFrame;
+    
 
     [Header("Glow Settings")]
     [SerializeField] public string itemName = "Item";
     [SerializeField] public bool isValidItem = true; // item benar (Hijau), kosongkan jika salah (Merah)
-=======
->>>>>>> Stashed changes
-
     [SerializeField] private InputActionProperty backpackAction;
 
     private void Awake()
     {
         grabInteractable = GetComponent<XRGrabInteractable>();
-<<<<<<< Updated upstream
         glowEffect = GetComponent<GlowEffect>();
-        SetupPromptUI();
-    }
 
-    private void SetupPromptUI()
-    {
-        // Create a basic World Space Canvas for the prompt
-        GameObject canvasGo = new GameObject("BackpackPromptCanvas", typeof(Canvas), typeof(UnityEngine.UI.CanvasScaler));
-        Canvas canvas = canvasGo.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.WorldSpace;
-        canvasGo.transform.SetParent(this.transform);
-        canvasGo.transform.localPosition = new Vector3(0, 0.5f, 0); // Above the item
-        canvasGo.transform.localScale = new Vector3(0.002f, 0.002f, 0.002f);
-
-        GameObject textGo = new GameObject("PromptText", typeof(TextMeshProUGUI));
-        textGo.transform.SetParent(canvasGo.transform, false);
-        promptText = textGo.GetComponent<TextMeshProUGUI>();
-        promptText.text = "Press [Secondary Button] to put in backpack";
-        promptText.alignment = TextAlignmentOptions.Center;
-        promptText.fontSize = 40;
-
-        promptUI = canvasGo;
-        promptUI.SetActive(false);
-    }
-
-    private void OnEnable()
-    {
-        grabInteractable.selectEntered.AddListener(OnGrab);
-        grabInteractable.selectExited.AddListener(OnRelease);
-    }
-
-    private void OnDisable()
-    {
-        grabInteractable.selectEntered.RemoveListener(OnGrab);
-        grabInteractable.selectExited.RemoveListener(OnRelease);
+        if (backpackAction.action != null && !backpackAction.action.enabled)
+            backpackAction.action.Enable();
     }
 
     private void OnGrab(SelectEnterEventArgs args)
     {
-        promptUI.SetActive(true);
         if (glowEffect != null)
         {
             if (isValidItem)
@@ -75,47 +39,65 @@ public class BackpackItem : MonoBehaviour
 
     private void OnRelease(SelectExitEventArgs args)
     {
-        promptUI.SetActive(false);
         if (glowEffect != null)
         {
-            glowEffect.StopGlow(); 
+            glowEffect.StopGlow();
         }
     }
 
-=======
-    }
->>>>>>> Stashed changes
     private void Update()
     {
-        if (grabInteractable.isSelected)
+        if (grabInteractable == null)
+            return;
+
+        bool isSelectedNow = grabInteractable.isSelected;
+
+        // call OnGrab when selection starts
+        if (isSelectedNow && !wasSelectedLastFrame)
         {
-<<<<<<< Updated upstream
-            // Face the camera
-            if (Camera.main != null)
-                promptUI.transform.LookAt(Camera.main.transform);
+            OnGrab(null);
+        }
+        // call OnRelease when selection ends
+        else if (!isSelectedNow && wasSelectedLastFrame)
+        {
+            OnRelease(null);
+        }
 
-            // Check if backpack button is pressed
-            if (backpackAction.action != null && backpackAction.action.WasPressedThisFrame())
+        wasSelectedLastFrame = isSelectedNow;
+
+        if (!isSelectedNow)
+        {
+            wasBackpackPressedLastFrame = false;
+            return;
+        }
+
+        var action = backpackAction.action;
+        if (action == null)
+            return;
+
+        if (!action.enabled)
+            action.Enable();
+
+        bool isBackpackPressedNow = action.IsPressed();
+
+        // trigger once when button transitions from not-pressed -> pressed
+        if (isBackpackPressedNow && !wasBackpackPressedLastFrame)
+        {
+            if (isValidItem)
             {
-                if (isValidItem)
-                {
+                if (BackpackManager.Instance != null)
                     BackpackManager.Instance.AddToBackpack(this.gameObject);
-                }
                 else
-                {
-                    Debug.Log("Item '" + itemName + "' tidak penting dibawa!");
-                }
-=======
-            // face the camera
-            if (Camera.main != null)
-                promptUI.transform.LookAt(Camera.main.transform);
-
-            // check if backpack button is pressed
-            if (backpackAction.action != null && backpackAction.action.WasPressedThisFrame())
+                    Debug.LogWarning("BackpackManager.Instance is null. Make sure BackpackManager exists in the scene.");
+            }
+            else
             {
-                BackpackManager.Instance.AddToBackpack(this.gameObject);
->>>>>>> Stashed changes
+                Debug.Log("Item '" + itemName + "' tidak penting dibawa!");
             }
         }
+
+        wasBackpackPressedLastFrame = isBackpackPressedNow;
     }
 }
+
+
