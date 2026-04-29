@@ -11,10 +11,8 @@ public class BackpackItem : MonoBehaviour
     private bool wasSelectedLastFrame;
     private bool wasBackpackPressedLastFrame;
     
-
     [Header("Glow Settings")]
-    [SerializeField] public string itemName = "Item";
-    [SerializeField] public bool isValidItem = true; // item benar (Hijau), kosongkan jika salah (Merah)
+    [SerializeField] public bool isValidItem = true; 
     [SerializeField] private InputActionProperty backpackAction;
 
     private void Awake()
@@ -31,9 +29,9 @@ public class BackpackItem : MonoBehaviour
         if (glowEffect != null)
         {
             if (isValidItem)
-                glowEffect.ShowGlow(GlowEffect.GlowColor.Green); // Panggil warna Hijau
+                glowEffect.ShowGlow(GlowEffect.GlowColor.Green); 
             else
-                glowEffect.ShowGlow(GlowEffect.GlowColor.Red);   // Panggil warna Merah
+                glowEffect.ShowGlow(GlowEffect.GlowColor.Red);  
         }
     }
 
@@ -52,12 +50,10 @@ public class BackpackItem : MonoBehaviour
 
         bool isSelectedNow = grabInteractable.isSelected;
 
-        // call OnGrab when selection starts
         if (isSelectedNow && !wasSelectedLastFrame)
         {
             OnGrab(null);
         }
-        // call OnRelease when selection ends
         else if (!isSelectedNow && wasSelectedLastFrame)
         {
             OnRelease(null);
@@ -80,7 +76,6 @@ public class BackpackItem : MonoBehaviour
 
         bool isBackpackPressedNow = action.IsPressed();
 
-        // trigger once when button transitions from not-pressed -> pressed
         if (isBackpackPressedNow && !wasBackpackPressedLastFrame)
         {
             if (isValidItem)
@@ -92,7 +87,7 @@ public class BackpackItem : MonoBehaviour
             }
             else
             {
-                Debug.Log("Item '" + itemName + "' tidak penting dibawa!");
+                Debug.Log("Item '" + this.gameObject.name + "' tidak penting dibawa!");
             }
         }
 

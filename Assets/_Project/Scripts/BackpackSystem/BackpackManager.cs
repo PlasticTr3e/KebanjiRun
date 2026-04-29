@@ -24,12 +24,13 @@ public class BackpackManager : MonoBehaviour
             }
 
             inventory.Add(item);
-            item.SetActive(false); // hide the item
+            item.SetActive(false); 
             Debug.Log("Added " + item.name + " to backpack. Total items: " + inventory.Count);
         }
         else
         {
-            Debug.Log("Pick backpack first to store other items");
+            Debug.Log(item.name);
+            Debug.Log("Pick Backpack first to store other items");
         }
     }
 }
