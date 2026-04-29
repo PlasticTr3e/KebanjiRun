@@ -24,7 +24,6 @@ public class GlowEffect : MonoBehaviour
     private Material[] glowMaterials;  
     private Coroutine glowCoroutine;   
     private Color originalEmission;    
-    private bool isGlowing = false;
 
     private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
@@ -62,7 +61,6 @@ public class GlowEffect : MonoBehaviour
 
     private IEnumerator GlowCoroutine(Color targetColor)
     {
-        isGlowing = true;
         float elapsed = 0f;
         float halfDuration = glowDuration * 0.5f;
 
@@ -99,7 +97,6 @@ public class GlowEffect : MonoBehaviour
             yield return null;
         }
         SetEmissionColor(originalEmission);
-        isGlowing = false;
         glowCoroutine = null;
     }
 
@@ -120,7 +117,6 @@ public class GlowEffect : MonoBehaviour
             glowCoroutine = null;
         }
         SetEmissionColor(originalEmission);
-        isGlowing = false;
     }
 
     void OnDestroy()
