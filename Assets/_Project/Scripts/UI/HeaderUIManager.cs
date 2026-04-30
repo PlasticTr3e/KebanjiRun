@@ -7,12 +7,8 @@ public class HeaderUIManager : MonoBehaviour
     [Tooltip("Durasi countdown dalam detik. Contoh: 840 = 14 menit")]
     [SerializeField] private float totalTime = 840f;
 
-    [Header("Score")]
-    [SerializeField] private int currentScore = 0;
-
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI timeValueText;
-    [SerializeField] private TextMeshProUGUI scoreValueText;
 
     private float timeRemaining;
     private bool timerIsRunning = false;
@@ -21,7 +17,6 @@ public class HeaderUIManager : MonoBehaviour
     {
         timeRemaining = totalTime;
         RefreshTimerDisplay(timeRemaining);
-        RefreshScoreDisplay();
         StartTimer();
     }
 
@@ -39,18 +34,11 @@ public class HeaderUIManager : MonoBehaviour
             timeRemaining = 0f;
             timerIsRunning = false;
             RefreshTimerDisplay(0f);
-            OnTimerEnd();
         }
     }
 
     public void StartTimer() => timerIsRunning = true;
     public void StopTimer() => timerIsRunning = false;
-
-    public void AddScore(int points)
-    {
-        currentScore += points;
-        RefreshScoreDisplay();
-    }
 
     private void RefreshTimerDisplay(float t)
     {
@@ -59,16 +47,5 @@ public class HeaderUIManager : MonoBehaviour
         int m = Mathf.FloorToInt(t / 60f);
         int s = Mathf.FloorToInt(t % 60f);
         timeValueText.text = string.Format("{0:00}:{1:00}", m, s);
-    }
-
-    private void RefreshScoreDisplay()
-    {
-        if (scoreValueText == null) return; 
-        scoreValueText.text = currentScore.ToString("D4");
-    }
-
-    private void OnTimerEnd()
-    {
-        Debug.Log("[KebanjiRun] Waktu habis! Skor: " + currentScore);
     }
 }
