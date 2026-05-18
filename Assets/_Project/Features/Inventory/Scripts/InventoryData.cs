@@ -1,34 +1,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewInventory", menuName = "Inventory/Inventory Data")]
-public class InventoryData : ScriptableObject
+namespace KebanjiRun.Features.Inventory.Data
 {
-    public List<GameObject> inventory = new List<GameObject>();
-    public bool isBackpackPicked;
-    private void OnEnable()
+    [CreateAssetMenu(fileName = "NewInventory", menuName = "KebanjiRun/Inventory Data")]
+    public class InventoryData : ScriptableObject
     {
-        inventory.Clear();
-        isBackpackPicked = false;
-    }
+        public List<string> collectedItemIDs = new List<string>();
+        public bool hasBackpack;
 
-    public void AddToBackpack(GameObject item)
-    {
-        if (item.name == "Backpack" || isBackpackPicked)
+        private void OnEnable()
         {
-            if (item.name == "Backpack")
+            collectedItemIDs.Clear();
+            hasBackpack = false;
+        }
+
+        public bool TryStoreItem(string itemID)
+        {
+            if (itemID == "Backpack")
             {
-                isBackpackPicked = true;
+                hasBackpack = true;
+                if (!collectedItemIDs.Contains(itemID)) collectedItemIDs.Add(itemID);
+                return true;
             }
 
-            inventory.Add(item);
-            item.SetActive(false); 
-            Debug.Log("Added " + item.name + " to backpack. Total items: " + inventory.Count);
-        }
-        else
-        {
-            Debug.Log(item.name);
-            Debug.Log("Pick Backpack first to store other items");
+            if (hasBackpack)
+            {
+                if (!collectedItemIDs.Contains(itemID)) collectedItemIDs.Add(itemID);
+                return true;
+            }
+
+            return false;
         }
     }
 }

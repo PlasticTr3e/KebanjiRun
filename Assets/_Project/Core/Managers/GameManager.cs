@@ -1,8 +1,9 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR;
 
-namespace Kebanjirun.Core.Managers
+namespace KebanjiRun.Core.Managers
 {
     public enum GameState
     {
@@ -10,7 +11,9 @@ namespace Kebanjirun.Core.Managers
         Event,
         PostEvent,
         GameOver,
-        MissionComplete
+        MissionComplete,
+        Pause,
+        MainMenu
     }
 
     public class GameManager : MonoBehaviour
@@ -18,6 +21,8 @@ namespace Kebanjirun.Core.Managers
         public static GameManager Instance {get; private set;}
         public event Action<GameState> OnGameStateChanged;
         public GameState CurrentState {get; private set;}
+        public event Action OnFloodWarningClosed;
+        public float WarningTriggerTime {get; private set;}
 
         private void Awake()
         {
@@ -47,6 +52,11 @@ namespace Kebanjirun.Core.Managers
                 
         }
 
+        public void TriggerFloodWarningClosed()
+        {
+            OnFloodWarningClosed?.Invoke();
+        }
+
         public void HandleStateChange(GameState state)
         {
             switch (state)
@@ -58,12 +68,6 @@ namespace Kebanjirun.Core.Managers
                     break;
 
                 case GameState.PostEvent:
-                    break;
-
-                case GameState.GameOver:
-                    break;
-                
-                case GameState.MissionComplete:
                     break;
             }
         }

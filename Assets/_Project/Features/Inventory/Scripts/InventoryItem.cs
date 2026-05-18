@@ -1,101 +1,142 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
+using KebanjiRun.Features.Inventory.Data;
+using KebanjiRun.Features.UI;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class InventoryItem : MonoBehaviour
+namespace KebanjiRun.Features.Inventory.Components
 {
-    private XRGrabInteractable grabInteractable;
-    private GlowEffect glowEffect;
-    private bool wasSelectedLastFrame;
-    private bool wasBackpackPressedLastFrame;
-    
-    [Header("Glow Settings")]
-    [SerializeField] public bool isValidItem = true; 
-    [SerializeField] private InputActionProperty PickAction;
-
-    [Header("Inventory Data")]
-    [SerializeField] private InventoryData inventoryData;
-
-    private void Awake()
+    [RequireComponent(typeof(XRGrabInteractable))]
+    public class InventoryItem : MonoBehaviour
     {
-        grabInteractable = GetComponent<XRGrabInteractable>();
-        glowEffect = GetComponent<GlowEffect>();
+        [Header("Item Configuration")]
+        public string itemID;
+        public bool isValidItem = true;
 
-        if (PickAction.action != null && !PickAction.action.enabled)
-            PickAction.action.Enable();
-    }
+        [Header("Keep in hand item configuration")]
+        public bool keepInHandItem = false;
+        public Vector3 equipPositionOffset = Vector3.zero;
+        public Vector3 equipRotationOffser = Vector3.zero;
 
-    private void OnGrab(SelectEnterEventArgs args)
-    {
-        if (glowEffect != null)
+        [Header("References")]
+        [SerializeField] private InventoryData inventoryData;
+        private GameObject _rightControllerVisual;
+        private XRGrabInteractable _interactable;
+        private GlowEffect _glowEffect;
+
+        private void Awake()
         {
-            if (isValidItem)
-                glowEffect.ShowGlow(GlowEffect.GlowColor.Green); 
-            else
-                glowEffect.ShowGlow(GlowEffect.GlowColor.Red);  
-        }
-    }
+            _interactable = GetComponent<XRGrabInteractable>();
+            _glowEffect = GetComponent<GlowEffect>();
 
-    private void OnRelease(SelectExitEventArgs args)
-    {
-        if (glowEffect != null)
-        {
-            glowEffect.StopGlow();
-        }
-    }
-
-    private void Update()
-    {
-        if (grabInteractable == null)
-            return;
-
-        bool isSelectedNow = grabInteractable.isSelected;
-
-        if (isSelectedNow && !wasSelectedLastFrame)
-        {
-            OnGrab(null);
-        }
-        else if (!isSelectedNow && wasSelectedLastFrame)
-        {
-            OnRelease(null);
-        }
-
-        wasSelectedLastFrame = isSelectedNow;
-
-        if (!isSelectedNow)
-        {
-            wasBackpackPressedLastFrame = false;
-            return;
-        }
-
-        var action = PickAction.action;
-        if (action == null)
-            return;
-
-        if (!action.enabled)
-            action.Enable();
-
-        bool isBackpackPressedNow = action.IsPressed();
-
-          if (isBackpackPressedNow && !wasBackpackPressedLastFrame)
-        {
-            if (isValidItem)
+            GameObject rightController = GameObject.Find("Right Controller");
+            if (rightController != null)
             {
-                if (inventoryData != null) 
-                    inventoryData.AddToBackpack(this.gameObject);
-                else
-                    Debug.LogWarning("InventoryData is missing! Please assign it in the Inspector.");
-            }
-            else
-            {
-                Debug.Log("Item '" + this.gameObject.name + "' tidak penting dibawa!");
+                Transform rightControllerChild = rightController.transform.Find("Right Controller Visual");
+                if (rightControllerChild != null)
+                {
+                    _rightControllerVisual = rightControllerChild.Find("UniversalController")?.gameObject;
+                }
             }
         }
 
-        wasBackpackPressedLastFrame = isBackpackPressedNow;
+        private void OnEnable()
+        {
+            _interactable.selectEntered.AddListener(OnGrab);
+            _interactable.selectExited.AddListener(OnRelease);
+            _interactable.activated.AddListener(OnStoreButtonPressed);
+        }
+
+        private void OnDisable()
+        {
+            _interactable.selectEntered.RemoveListener(OnGrab);
+            _interactable.selectExited.RemoveListener(OnRelease);
+            _interactable.activated.RemoveListener(OnStoreButtonPressed);
+        }
+
+        private void OnGrab(SelectEnterEventArgs args)
+        {
+            if (_glowEffect != null)
+            {
+                _glowEffect.ShowGlow(isValidItem ? GlowEffect.GlowColor.Green : GlowEffect.GlowColor.Red);
+            }
+        }
+
+        private void OnRelease(SelectExitEventArgs args)
+        {
+            if (_glowEffect != null)
+            {
+                _glowEffect.StopGlow();
+            }
+        }
+
+        private void OnStoreButtonPressed(ActivateEventArgs args)
+        {
+            if (inventoryData == null) return;
+
+            if (!isValidItem)
+            {
+                Debug.Log($"Item {gameObject.name} tidak penting dibawa!");
+                return;
+            }
+
+            if (keepInHandItem)
+            {
+                IXRSelectInteractor selectingInteractor = _interactable.firstInteractorSelecting;
+                if (selectingInteractor != null)
+                {
+                    EquipToHand(selectingInteractor);
+                    ChecklistUIManager.Instance.MarkItemCollected(itemID);
+                }
+                return;
+            }
+
+            if (itemID != "Backpack" && !inventoryData.hasBackpack)
+            {
+                Debug.Log("Harus ambil Tas Ransel dulu sebelum mengambil barang lain!");
+                return;
+            }
+
+            bool isStored = inventoryData.TryStoreItem(itemID);
+            if (isStored)
+            {
+                Debug.Log($"Berhasil memasukkan {itemID} ke dalam tas.");
+                if (ChecklistUIManager.Instance != null)
+                {
+                    ChecklistUIManager.Instance.MarkItemCollected(itemID);
+                }
+                gameObject.SetActive(false);
+            }
+        }
+
+        private void EquipToHand(IXRSelectInteractor interactor)
+        {
+            Transform handTransform = interactor.transform;
+
+            _interactable.interactionManager.CancelInteractableSelection((IXRSelectInteractable)_interactable);
+
+            _interactable.enabled = false;
+
+            if (TryGetComponent<Rigidbody>(out Rigidbody rb))
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+
+            // Collider[] colliders = GetComponentsInChildren<Collider>();
+            // foreach (var col in colliders) col.enabled = false;
+
+            transform.SetParent(handTransform);
+            transform.localPosition = equipPositionOffset;
+            transform.localEulerAngles = equipRotationOffser;
+
+            if (_glowEffect != null) _glowEffect.StopGlow();
+
+            if (_rightControllerVisual != null)
+            {
+                _rightControllerVisual.SetActive(false);
+            }
+        }
     }
 }
-
-

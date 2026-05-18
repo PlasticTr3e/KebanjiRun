@@ -1,4 +1,4 @@
-using Kebanjirun.Core.Managers;
+using KebanjiRun.Core.Managers;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,8 +15,6 @@ namespace KebanjiRun.Core.Managers
         [SerializeField] private string preEventSceneName = "PreEvent_Scene";
         [SerializeField] private string eventSceneName = "Event_Scene";
         [SerializeField] private string postEventSceneName = "PostEvent_Scene";
-        [SerializeField] private string GameOverName = "GameOver_Scene";
-        [SerializeField] private string MissionCompleteName = "MissionComplete_Scene";
 
         [Header("Player Reference")]
         [SerializeField] private Transform xrRig;
@@ -60,8 +58,6 @@ namespace KebanjiRun.Core.Managers
                 GameState.PreEvent => preEventSceneName,
                 GameState.Event => eventSceneName,
                 GameState.PostEvent => postEventSceneName,
-                GameState.GameOver => GameOverName,
-                GameState.MissionComplete => MissionCompleteName,
                 _ => string.Empty
             };
         }

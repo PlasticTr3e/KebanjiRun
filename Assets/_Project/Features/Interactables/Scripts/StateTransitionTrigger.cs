@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using Kebanjirun.Core.Managers;
+using KebanjiRun.Core.Managers;
 
 namespace KebanjiRun.Features.Interactables
 {
