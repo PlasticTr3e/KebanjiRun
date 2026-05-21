@@ -1991,7 +1991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 44103bf0579e836439a5c746555862f3, type: 3}
       propertyPath: m_Name
-      value: npc_1 (1)
+      value: npc_2
       objectReference: {fileID: 0}
     - target: {fileID: 5601484285250034516, guid: 44103bf0579e836439a5c746555862f3, type: 3}
       propertyPath: m_DynamicOccludee
