@@ -4,6 +4,7 @@ using KebanjiRun.Features.Inventory.Data;
 using KebanjiRun.Features.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using KebanjiRun.Features.Interactables; // TAMBAHKAN INI
 
 namespace KebanjiRun.Features.Inventory.Components
 {
@@ -75,11 +76,25 @@ namespace KebanjiRun.Features.Inventory.Components
         {
             if (inventoryData == null) return;
 
+            // KONDISI A: Salah mengambil barang dekorasi
             if (!isValidItem)
             {
-                Debug.Log($"Item {gameObject.name} tidak penting dibawa!");
+                string pesanSalah = "Jangan bawa barang ini. Ambil barang penting sesuai daftar!";
+                if (WarningUIManager.Instance != null)
+                    WarningUIManager.Instance.ShowWarning(pesanSalah, true);
                 return;
             }
+
+            // KONDISI B: Belum punya ransel
+            if (itemID != "Backpack" && !inventoryData.hasBackpack)
+            {
+                string pesanButuhTas = "Ambil Ransel/Tas Siaga terlebih dahulu sebelum mengumpulkan barang!";
+                if (WarningUIManager.Instance != null)
+                    WarningUIManager.Instance.ShowWarning(pesanButuhTas, true);
+                return;
+            }
+            
+            bool dataTerproses = false;
 
             if (keepInHandItem)
             {
@@ -87,35 +102,68 @@ namespace KebanjiRun.Features.Inventory.Components
                 if (selectingInteractor != null)
                 {
                     EquipToHand(selectingInteractor);
-                    ChecklistUIManager.Instance.MarkItemCollected(itemID);
+                    
+                    if (!inventoryData.collectedItemIDs.Contains(itemID))
+                    {
+                        inventoryData.collectedItemIDs.Add(itemID);
+                    }
+                    dataTerproses = true;
                 }
-                return;
+            }
+            else
+            {
+                dataTerproses = inventoryData.TryStoreItem(itemID);
             }
 
-            if (itemID != "Backpack" && !inventoryData.hasBackpack)
+            if (dataTerproses)
             {
-                Debug.Log("Harus ambil Tas Ransel dulu sebelum mengambil barang lain!");
-                return;
-            }
-
-            bool isStored = inventoryData.TryStoreItem(itemID);
-            if (isStored)
-            {
-                Debug.Log($"Berhasil memasukkan {itemID} ke dalam tas.");
                 if (ChecklistUIManager.Instance != null)
                 {
                     ChecklistUIManager.Instance.MarkItemCollected(itemID);
                 }
-                gameObject.SetActive(false);
+
+                // Cek apakah ini barang terakhir
+                if (inventoryData.IsAllRequiredItemsCollected())
+                {
+                    string pesanSiapEvakuasi = "Semua barang darurat telah terkumpul! Segera keluar dari rumah sekarang!";
+                    if (WarningUIManager.Instance != null)
+                        WarningUIManager.Instance.ShowWarning(pesanSiapEvakuasi, false);
+                }
+                else
+                {
+                    if (keepInHandItem)
+                    {
+                        if (itemID.ToLower().Contains("flashlight") || itemID.ToLower().Contains("senter"))
+                        {
+                            // REVISI PESAN: Beritahu cara mematikan menggunakan tombol N / Controller
+                            if (NotificationUIManager.Instance != null)
+                                NotificationUIManager.Instance.ShowNotification("Senter OTOMATIS NYALA! Tekan 'Tombol N' (di Keyboard Simulator) atau 'Tombol A/X' (di Controller VR) jika ingin mematikan.");
+                        }
+                        else
+                        {
+                            if (NotificationUIManager.Instance != null)
+                                NotificationUIManager.Instance.ShowNotification($"Berhasil menggunakan {itemID}.");
+                        }
+                    }
+                    else
+                    {
+                        string namaBarangTeks = itemID == "Backpack" ? "Ransel Siaga" : itemID;
+                        if (NotificationUIManager.Instance != null)
+                            NotificationUIManager.Instance.ShowNotification($"{namaBarangTeks} berhasil dimasukkan kedalam tas siaga!");
+                    }
+                }
+
+                if (!keepInHandItem)
+                {
+                    gameObject.SetActive(false);
+                }
             }
         }
-
+        
         private void EquipToHand(IXRSelectInteractor interactor)
         {
             Transform handTransform = interactor.transform;
-
             _interactable.interactionManager.CancelInteractableSelection((IXRSelectInteractable)_interactable);
-
             _interactable.enabled = false;
 
             if (TryGetComponent<Rigidbody>(out Rigidbody rb))
@@ -123,9 +171,6 @@ namespace KebanjiRun.Features.Inventory.Components
                 rb.isKinematic = true;
                 rb.useGravity = false;
             }
-
-            // Collider[] colliders = GetComponentsInChildren<Collider>();
-            // foreach (var col in colliders) col.enabled = false;
 
             transform.SetParent(handTransform);
             transform.localPosition = equipPositionOffset;
@@ -136,6 +181,11 @@ namespace KebanjiRun.Features.Inventory.Components
             if (_rightControllerVisual != null)
             {
                 _rightControllerVisual.SetActive(false);
+            }
+
+            if (TryGetComponent<TurnFlashLightOnOff>(out TurnFlashLightOnOff flashLightScript))
+            {
+                flashLightScript.ForceOn(); 
             }
         }
     }

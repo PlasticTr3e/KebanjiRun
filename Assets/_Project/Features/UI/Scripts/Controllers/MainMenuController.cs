@@ -8,16 +8,17 @@ namespace KebanjiRun.Features.UI.Controllers
         [Header("Scene Settings")]
         [SerializeField] private string coreSceneName = "Core_Scene";
 
-        [Header("UI Panels")]
-        [Tooltip("Masukkan objek 'Menu' (panel utama) ke sini")]
-        [SerializeField] private GameObject mainMenuPanel;
+        [Header("UI Panels (Canvas)")]
+        [Tooltip("Masukkan objek 'Menu' (Canvas utama) ke sini")]
+        [SerializeField] private Canvas mainMenuCanvas;
         
-        [SerializeField] private GameObject howToPlayPanel;
+        [Tooltip("Masukkan objek 'HowToPlay' (Canvas panduan) ke sini")]
+        [SerializeField] private Canvas howToPlayCanvas;
 
         private void Start()
         {
-            if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
-            if (howToPlayPanel != null) howToPlayPanel.SetActive(false);
+            if (mainMenuCanvas != null) mainMenuCanvas.enabled = true;
+            if (howToPlayCanvas != null) howToPlayCanvas.enabled = false;
         }
 
         public void StartGame()
@@ -28,15 +29,14 @@ namespace KebanjiRun.Features.UI.Controllers
 
         public void OpenHowToPlay()
         {
-            if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
-            if (howToPlayPanel != null) howToPlayPanel.SetActive(true);
+            if (mainMenuCanvas != null) mainMenuCanvas.enabled = false;
+            if (howToPlayCanvas != null) howToPlayCanvas.enabled = true;
         }
-
 
         public void CloseHowToPlay()
         {
-            if (howToPlayPanel != null) howToPlayPanel.SetActive(false);
-            if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+            if (howToPlayCanvas != null) howToPlayCanvas.enabled = false;
+            if (mainMenuCanvas != null) mainMenuCanvas.enabled = true;
         }
 
         public void ExitGame()

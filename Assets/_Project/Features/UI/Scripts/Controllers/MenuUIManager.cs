@@ -6,7 +6,6 @@ namespace KebanjiRun.Features.UI.Controllers
 {
     public class MenuUIManager : MonoBehaviour
     {
-
         [Header("UI Panels")]
         [SerializeField] private GameObject pausePanel;
         [SerializeField] private GameObject gameOverPanel;
@@ -19,11 +18,17 @@ namespace KebanjiRun.Features.UI.Controllers
         [SerializeField] private string mainMenuSceneName = "MainMenu_Scene";
 
         private bool _isPaused;
+
         private void Start()
         {
             HideAllMenus();
 
-            GameManager.Instance.OnGameStateChanged += HandleGameState;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnGameStateChanged += HandleGameState;
+                
+                HandleGameState(GameManager.Instance.CurrentState);
+            }
         }
 
         private void OnDestroy()
@@ -33,52 +38,68 @@ namespace KebanjiRun.Features.UI.Controllers
                 GameManager.Instance.OnGameStateChanged -= HandleGameState;
             }
         }
+
         private void Update()
         {
             if (pauseAction.action != null && pauseAction.action.WasPressedThisFrame())
             {
-                GameState state = GameManager.Instance.CurrentState;
-                if (state == GameState.PreEvent || state == GameState.Event || state == GameState.PostEvent)
-                {
-                    TogglePause();
-                }
+                TogglePause();
+            }
+
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                TogglePause();
             }
         }
 
-        private void HandleGameState(GameState state)
+        public void HandleGameState(GameState state)
         {
-            HideAllMenus();
-
             if (state == GameState.GameOver)
             {
-                gameOverPanel.SetActive(true);
-                Time.timeScale = 0;
-            }else if (state == GameState.MissionComplete)
+                if (pausePanel != null) pausePanel.SetActive(false);
+                if (missionCompletePanel != null) missionCompletePanel.SetActive(false);
+                
+                if (gameOverPanel != null) gameOverPanel.SetActive(true);
+                
+                Time.timeScale = 0; 
+                Debug.Log("[MenuUI] Menerima status GAMEOVER dari GlobalTimer. Panel Mission Failed Aktif!");
+            }
+            else if (state == GameState.MissionComplete)
             {
-                missionCompletePanel.SetActive(true);
-                Time.timeScale = 0;
+                if (pausePanel != null) pausePanel.SetActive(false);
+                if (gameOverPanel != null) gameOverPanel.SetActive(false);
+                
+                if (missionCompletePanel != null) missionCompletePanel.SetActive(true);
+                
+                Time.timeScale = 0; 
+                Debug.Log("[MenuUI] Menerima status MISSION COMPLETE. Panel Mission Success Aktif!");
             }
         }
 
         public void TogglePause()
         {
+            if ((gameOverPanel != null && gameOverPanel.activeSelf) || (missionCompletePanel != null && missionCompletePanel.activeSelf)) 
+                return;
+
             _isPaused = !_isPaused;
-            pausePanel.SetActive(true);
+            
+            if (pausePanel != null) 
+                pausePanel.SetActive(_isPaused);
 
             Time.timeScale = _isPaused ? 0 : 1;
+            Debug.Log($"Game Paused: {_isPaused}");
         }
 
         public void HideAllMenus()
         {
-            pausePanel.SetActive(false);
-            gameOverPanel.SetActive(false);
-            gameOverPanel.SetActive(false);
+            if (pausePanel != null) pausePanel.SetActive(false);
+            if (gameOverPanel != null) gameOverPanel.SetActive(false);
+            if (missionCompletePanel != null) missionCompletePanel.SetActive(false);
         }
-
 
         public void ResumeGame()
         {
-            if(_isPaused) TogglePause();
+            if (_isPaused) TogglePause();
         }
 
         public void RetryGame()
@@ -90,10 +111,18 @@ namespace KebanjiRun.Features.UI.Controllers
         public void GoToMainMenu()
         {
             Time.timeScale = 1;
-
             UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuSceneName);
         }
 
+        public void ExitGame()
+        {
+            Debug.Log("Keluar dari Game!");
+            
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
+        }
     }
-
 }
