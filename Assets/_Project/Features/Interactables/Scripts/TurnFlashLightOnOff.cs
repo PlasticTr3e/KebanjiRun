@@ -7,7 +7,7 @@ namespace KebanjiRun.Features.Interactables
     {
         [SerializeField] private Light flashlightLight;
 
-        public bool isOn {get; private set;}
+        public bool isOn { get; private set; }
         public event Action<bool> OnFlashlightStateChanged;
 
         private void Awake()
@@ -15,6 +15,11 @@ namespace KebanjiRun.Features.Interactables
             if (flashlightLight == null)
             {
                 flashlightLight = GetComponentInChildren<Light>(true);
+            }
+            
+            if (flashlightLight != null)
+            {
+                flashlightLight.enabled = false;
             }
         }
 
@@ -27,6 +32,18 @@ namespace KebanjiRun.Features.Interactables
             }
 
             OnFlashlightStateChanged?.Invoke(isOn);
+        }
+
+        public void ForceOn()
+        {
+            isOn = true;
+            if (flashlightLight != null)
+            {
+                flashlightLight.enabled = true;
+            }
+
+            OnFlashlightStateChanged?.Invoke(true);
+            Debug.Log("Senter otomatis menyala karena telah diambil!");
         }
 
         public void ForceOff()
