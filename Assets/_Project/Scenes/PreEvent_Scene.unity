@@ -2565,7 +2565,7 @@ GameObject:
   - component: {fileID: 6999328138271184055}
   - component: {fileID: 6999328138271184052}
   m_Layer: 0
-  m_Name: Document
+  m_Name: Clothes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3174,7 +3174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e376d125c149e14f8c598a4c9679de2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KebanjiRun.Features.Inventory.Components.InventoryItem
-  itemID: Document
+  itemID: Clothes
   isValidItem: 1
   keepInHandItem: 0
   equipPositionOffset: {x: 0, y: 0, z: 0}

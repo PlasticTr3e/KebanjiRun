@@ -5612,7 +5612,7 @@ MonoBehaviour:
   - itemID: Backpack
     itemText: {fileID: 1760279889}
     checkedIndicator: {fileID: 1449944473}
-  - itemID: Document
+  - itemID: Clothes
     itemText: {fileID: 1731219231}
     checkedIndicator: {fileID: 102956107}
   - itemID: Flashlight
@@ -7084,7 +7084,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Document
+  m_text: Clothes
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
