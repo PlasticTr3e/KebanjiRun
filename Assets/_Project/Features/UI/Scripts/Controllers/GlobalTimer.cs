@@ -12,10 +12,11 @@ namespace KebanjiRun.Features.UI
         [SerializeField] private GameObject hudCanvasGroup;
 
         [Header("Settings")]
-        [SerializeField] private float totalTimeInSeconds = 840f;
+        [SerializeField] private float totalTimeInSeconds = 360f;
 
         private float _currentTime;
         private bool _isRunning = false;
+        private bool _hasWarnedCriticalTime = false; 
 
         private void Start()
         {
@@ -46,6 +47,12 @@ namespace KebanjiRun.Features.UI
         {
             if (hudCanvasGroup != null) hudCanvasGroup.SetActive(true);
             _isRunning = true;
+
+            // KONDISI WAKTU START: Air Mulai Naik (WARNING)
+            if (WarningUIManager.Instance != null)
+            {
+                WarningUIManager.Instance.ShowWarning("Air mulai naik! Segera kumpulkan barang-barang penting Anda!", true);
+            }
         }
 
         private void HandleGameState(GameState state)
@@ -63,11 +70,20 @@ namespace KebanjiRun.Features.UI
 
             _currentTime -= Time.deltaTime;
 
+            // KONDISI WAKTU KRITIS: Sisa waktu di bawah 5 menit / 300 detik (WARNING)
+            if (_currentTime <= 300f && !_hasWarnedCriticalTime)
+            {
+                _hasWarnedCriticalTime = true;
+                if (WarningUIManager.Instance != null)
+                {
+                    WarningUIManager.Instance.ShowWarning("Waktu hampir habis dan air semakin tinggi! Cepat selesaikan daftar cek Anda!", true);
+                }
+            }
+
             if (_currentTime <= 0)
             {
                 _currentTime = 0;
                 _isRunning = false;
-
                 GameManager.Instance.ChangeState(GameState.GameOver);
             }
 

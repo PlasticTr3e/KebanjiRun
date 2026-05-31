@@ -9,6 +9,10 @@ namespace KebanjiRun.Features.Inventory.Data
         public List<string> collectedItemIDs = new List<string>();
         public bool hasBackpack;
 
+        [Header("Target Target Mitigasi")]
+        [Tooltip("Jumlah total barang penting unik yang harus dikumpulkan di checklist")]
+        [SerializeField] private int requiredItemCount = 5; 
+
         private void OnEnable()
         {
             collectedItemIDs.Clear();
@@ -31,6 +35,11 @@ namespace KebanjiRun.Features.Inventory.Data
             }
 
             return false;
+        }
+
+        public bool IsAllRequiredItemsCollected()
+        {
+            return collectedItemIDs.Count >= requiredItemCount;
         }
     }
 }
