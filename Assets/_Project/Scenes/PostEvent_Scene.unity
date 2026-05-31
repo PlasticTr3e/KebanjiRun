@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6548711cd1921478583982d339e093, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KebanjiRun.Features.NPCs.NPCInteractable
-  requiredItemID: Medkit
+  requiredItemID: Flashlight
   bonusPoints: 200
   inventoryData: {fileID: 11400000, guid: 58fe5f26214696d599b805d10c99ddae, type: 2}
   npcAudio: {fileID: 0}
@@ -2038,7 +2038,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6548711cd1921478583982d339e093, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KebanjiRun.Features.NPCs.NPCInteractable
-  requiredItemID: Clothes
+  requiredItemID: Medkit
   bonusPoints: 200
   inventoryData: {fileID: 11400000, guid: 58fe5f26214696d599b805d10c99ddae, type: 2}
   npcAudio: {fileID: 0}
